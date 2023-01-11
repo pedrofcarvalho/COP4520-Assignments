@@ -45,6 +45,8 @@
 *.tsv
 *.tsv.gz
 *.xlsx
+*.txt
+*.pdf
 
 # Environments
 .env
