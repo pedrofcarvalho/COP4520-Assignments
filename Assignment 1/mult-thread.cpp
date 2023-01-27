@@ -1,84 +1,18 @@
 
-#include <iostream> 
-#include <vector>
-#include <thread>
-#include <mutex>
+#include "mult-func.h"
 
 using namespace std;
 using namespace std::chrono;
 
 
-mutex g_mutex;
-const int NUM_OF_THREADS = 8;
-const int NUMBER_OF_ELEMENTS = 100000000; // 100 * 100 * 100 
-const int STEP = NUMBER_OF_ELEMENTS / NUM_OF_THREADS; // MAKE THIS A CONST
-
-vector<int> primeArr(0);
-vector<bool> fullArr(0);
-
-vector<bool> InitializeArr(int len) {
-	vector<bool> primeArr(len+1);
-
-	primeArr[0] = false;
-	primeArr[1] = false;
-
-	for (int i = 2; i < len + 1; i++) 
-		primeArr[i] = true;
-
-	return primeArr;
-} 
-
-// HOW TO PASS FULLARR AS A REFERENCE ???????
-void UncheckMultiples(vector<bool> &fullArr, int multipleNum) {
-	for (int i = multipleNum * multipleNum; i < fullArr.size(); i += multipleNum)
-		fullArr[i] = false;
-}
-
-void SievePrimes(vector<bool> fullArr, int i_0, int i_1) {
-
-	lock_guard<mutex> guard(g_mutex);
-
-	// Sieve of Eratosthenes logic
-	for (int i = i_0; i * i <= i_1; i++) {
-		if (fullArr[i] == true) {
-			// figure out how to pass this as reference to a function later
-			UncheckMultiples(ref(fullArr), i);
-		}
-	}
-
-	// insert prime value to vector 
-    for (int p = 2; p < fullArr.size(); p++)
-        if (fullArr[p])
-			primeArr.insert(primeArr.end(), p);
-}
-
-long long ShowPrimeSum() {
-	
-	long long sum = 0;
-
-	for (int i = 0; i < primeArr.size(); i++)
-		sum += primeArr[i];
-
-	return sum;
-}
-
-void TopTenPrimes() {
-
-	cout << "[";
-
-	for (int i = primeArr.size() - 10; i < primeArr.size() - 1; i++) {
-		cout << primeArr[i] << ", ";
-	}
-
-	cout << primeArr[primeArr.size() - 1] << "]";
-}
+// vector<int> primeArr(0);
+// vector<bool> fullArr(0);
 
 int main() 
 {
-	// const int n = 100000000;
-	// const int STEP = n / NUM_OF_THREADS;
+	vector<bool> fullArr = InitializeArr(NUMBER_OF_ELEMENTS);
+	vector<int> primeArr;
 
-	fullArr = InitializeArr(NUMBER_OF_ELEMENTS);
 	vector<thread> threads;
 
 	cout << "Creating all threads...\n" << endl;
@@ -104,7 +38,7 @@ int main()
 		// 	cout << fullArr[i];
 		// cout << endl;
 		
-		threads.push_back(thread(SievePrimes, fullArr, i_0, i_1));
+		threads.push_back(thread(SievePrimes, ref(primeArr), ref(fullArr), i_0, i_1));
 	}
 
 	// thread t1(SievePrimes, fullArr, 0, 12500000);
@@ -136,9 +70,12 @@ int main()
     auto duration = duration_cast<seconds>(stopTime - startTime);
     // cout << "Duration: " << duration.count() << "s" << endl;
 
+	for (int p = 2; p < fullArr.size(); p++)
+        if (fullArr[p])
+			primeArr.insert(primeArr.end(), p);
 
-	cout << duration.count() << "s " << primeArr.size() << " " << ShowPrimeSum() << " ";
-	TopTenPrimes();
+
+	showOutput(primeArr, duration);
 
 
 	return 0;
