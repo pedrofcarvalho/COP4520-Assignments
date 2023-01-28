@@ -47,7 +47,7 @@ vector<int> sievePrimes(vector<bool> fullArr) {
 void showOutput(vector<int> primeArr, seconds duration) {
 
 	// Create and open a text file
-  	ofstream MyFile("prime.txt");
+  	ofstream MyFile("primes.txt");
 
 	long long sum = 0;
 

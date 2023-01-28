@@ -12,7 +12,9 @@ using namespace std::chrono;
 mutex g_mutex;
 const int NUM_OF_THREADS = 8;
 const int NUMBER_OF_ELEMENTS = 100000000; // 100 * 100 * 100 
-const int STEP = NUMBER_OF_ELEMENTS / NUM_OF_THREADS; // MAKE THIS A CONST
+const int STEP = NUMBER_OF_ELEMENTS / NUM_OF_THREADS;
+
+vector<int> primeArr; 
 
 vector<bool> InitializeArr(int len) {
 	vector<bool> primeArr(len+1);
@@ -26,13 +28,7 @@ vector<bool> InitializeArr(int len) {
 	return primeArr;
 } 
 
-// HOW TO PASS FULLARR AS A REFERENCE ???????
-void UncheckMultiples(vector<bool> &fullArr, int multipleNum, int n) {
-	for (int i = multipleNum * multipleNum; i < n; i += multipleNum)
-		fullArr[i] = false;
-}
-
-void SievePrimes(vector<int> &primeArr, vector<bool> &fullArr, int i_0, int i_1) {
+void SievePrimes(vector<bool> &fullArr, int i_0, int i_1) {
 
 	lock_guard<mutex> guard(g_mutex);
 
@@ -40,22 +36,16 @@ void SievePrimes(vector<int> &primeArr, vector<bool> &fullArr, int i_0, int i_1)
 	for (int i = i_0; i * i < i_1; i++) {
 		if (fullArr[i] == true) {
 			// figure out how to pass this as reference to a function later
-			// for (int j = i * i; j < i_1; j += i)
-			// 	fullArr[j] = false;
-			UncheckMultiples(ref(fullArr), i, i_1);
+			for (int j = i * i; j <= i_1; j += i)
+				fullArr[j] = false;
 		}
 	}
-
-	// insert prime value to vector 
-    // for (int p = 2; p < fullArr.size(); p++)
-    //     if (fullArr[p])
-	// 		primeArr.insert(primeArr.end(), p);
 }
 
-void showOutput(vector<int> primeArr, seconds duration) {
+void showOutput(seconds duration) {
 
 	// Create and open a text file
-  	ofstream MyFile("prime.txt");
+  	ofstream MyFile("primes.txt");
 
 	long long sum = 0;
 

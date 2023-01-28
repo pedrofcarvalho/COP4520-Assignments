@@ -1,5 +1,5 @@
 
-#include "singlet_func.h"
+#include "singlet-func.h"
 
 using namespace std;
 using namespace std::chrono;
